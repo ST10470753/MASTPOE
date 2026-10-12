@@ -34,19 +34,21 @@ export default function App() {
   // State for Menu Items Array
   const [arrMenuItems, setArrMenuItems] = useState<MenuItem[]>([]);
 
-  // Handler to Validate and Add Menu Item
+  // State for Feedback Banner Message
+  const [strFeedbackMessage, setStrFeedbackMessage] = useState<string | null>(null);
+  const [strFeedbackType, setStrFeedbackType] = useState<'error' | 'success'>('error');
+
   const handleAddMenuItem = () => {
     if (!strDishName.trim() || !strDescription.trim() || !strPrice.trim()) {
-      Alert.alert(
-        'Missing Information',
-        'Please fill in all fields before adding a menu item.'
-      );
+      setStrFeedbackMessage('Missing Information: Please fill in all fields before adding a menu item.');
+      setStrFeedbackType('error');
       return;
     }
 
     const numParsedPrice = parseFloat(strPrice);
     if (isNaN(numParsedPrice) || numParsedPrice <= 0) {
-      Alert.alert('Invalid Price', 'Please enter a valid numeric price greater than 0.');
+      setStrFeedbackMessage('Invalid Price: Please enter a valid numeric price greater than 0.');
+      setStrFeedbackType('error');
       return;
     }
 
@@ -60,7 +62,9 @@ export default function App() {
 
     setArrMenuItems((prevItems) => [objNewDish, ...prevItems]);
 
-    Alert.alert('Success', `"${strDishName.trim()}" has been added to the menu!`);
+    setStrFeedbackMessage(`Success: "${strDishName.trim()}" has been added to the menu!`);
+    setStrFeedbackType('success');
+    
     setStrDishName('');
     setStrDescription('');
     setStrCourse('Starter');
@@ -93,6 +97,17 @@ export default function App() {
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+          {/* Visual Feedback Banner */}
+          {strFeedbackMessage && (
+            <View
+              style={[
+                styles.feedbackBanner,
+                strFeedbackType === 'error' ? styles.errorBanner : styles.successBanner,
+              ]}
+            >
+              <Text style={styles.feedbackText}>{strFeedbackMessage}</Text>
+            </View>
+          )}
           {/* Add Menu Item Form */}
           <View style={styles.formCard}>
             <Text style={styles.sectionHeader}>Add New Menu Item</Text>
@@ -347,5 +362,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#ccc',
     lineHeight: 18,
+  },
+  feedbackBanner: {
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+  },
+  errorBanner: {
+    backgroundColor: '#3b181a',
+    borderColor: '#f5c2c7',
+  },
+  successBanner: {
+    backgroundColor: '#133926',
+    borderColor: '#badbcc',
+  },
+  feedbackText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
