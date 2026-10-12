@@ -34,4 +34,14 @@ export default function App() {
   // State for Menu Items Array
   const [arrMenuItems, setArrMenuItems] = useState<MenuItem[]>([]);
 
-  
+  // Handler to Validate and Add Menu Item
+  const handleAddMenuItem = () => {
+    if (!strDishName.trim() || !strDescription.trim() || !strPrice.trim()) {
+      Alert.alert(
+        'Missing Information',
+        'Please fill in all fields before adding a menu item.'
+      );
+      return;
+    }
+
+    
