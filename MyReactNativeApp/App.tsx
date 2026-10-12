@@ -44,4 +44,27 @@ export default function App() {
       return;
     }
 
-    
+    const numParsedPrice = parseFloat(strPrice);
+    if (isNaN(numParsedPrice) || numParsedPrice <= 0) {
+      Alert.alert('Invalid Price', 'Please enter a valid numeric price greater than 0.');
+      return;
+    }
+
+    const objNewDish: MenuItem = {
+      id: Date.now().toString(),
+      dishName: strDishName.trim(),
+      description: strDescription.trim(),
+      course: strCourse,
+      price: numParsedPrice.toFixed(2),
+    };
+
+    setArrMenuItems((prevItems) => [objNewDish, ...prevItems]);
+
+    Alert.alert('Success', `"${strDishName.trim()}" has been added to the menu!`);
+    setStrDishName('');
+    setStrDescription('');
+    setStrCourse('Starter');
+    setStrPrice('');
+  };
+
+  
