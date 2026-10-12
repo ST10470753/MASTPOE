@@ -24,3 +24,9 @@ interface MenuItem {
   price: string;
 }
 
+export default function App() {
+  // State for Form Inputs
+  const [strDishName, setStrDishName] = useState<string>('');
+  const [strDescription, setStrDescription] = useState<string>('');
+  const [strCourse, setStrCourse] = useState<string>('Starter');
+  const [strPrice, setStrPrice] = useState<string>('');
