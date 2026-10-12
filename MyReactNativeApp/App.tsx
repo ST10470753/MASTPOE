@@ -67,4 +67,16 @@ export default function App() {
     setStrPrice('');
   };
 
+  // Component to Render Individual Item
+  const renderMenuItem = ({ item }: { item: MenuItem }) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.cardTitle}>{item.dishName}</Text>
+        <Text style={styles.cardPrice}>R {item.price}</Text>
+      </View>
+      <Text style={styles.cardBadge}>{item.course}</Text>
+      <Text style={styles.cardDescription}>{item.description}</Text>
+    </View>
+  );
+
   
