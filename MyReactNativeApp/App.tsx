@@ -30,3 +30,8 @@ export default function App() {
   const [strDescription, setStrDescription] = useState<string>('');
   const [strCourse, setStrCourse] = useState<string>('Starter');
   const [strPrice, setStrPrice] = useState<string>('');
+
+  // State for Menu Items Array
+  const [arrMenuItems, setArrMenuItems] = useState<MenuItem[]>([]);
+
+  
