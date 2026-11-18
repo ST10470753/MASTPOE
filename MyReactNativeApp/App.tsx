@@ -708,4 +708,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
   },
+
+  cancelButton: {
+    backgroundColor: '#2c2c2c',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#444444',
+  },
+  cancelButtonText: {
+    color: '#cccccc',
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });
