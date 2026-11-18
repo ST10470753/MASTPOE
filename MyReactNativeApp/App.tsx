@@ -257,7 +257,7 @@ export default function App() {
           </Text>
           </TouchableOpacity>
           </View>
-          
+
           {/* Search and Filter Section */}
           <View style={styles.formCard}>
             <Text style={styles.sectionHeader}>Search & Filter Menu</Text>
@@ -297,6 +297,26 @@ export default function App() {
                 <Text style={styles.clearFilterText}>Clear Search & Filters</Text>
               </TouchableOpacity>
             )}
+          </View>
+
+          {/* Menu Statistics Section */}
+          <View style={styles.statsCard}>
+            <Text style={styles.sectionHeader}>Menu Statistics Overview</Text>
+            <View style={styles.statsRow}>
+              <View style={styles.statBox}>
+                <Text style={styles.statNumber}>{totalItemsCount}</Text>
+                <Text style={styles.statLabel}>Total Items</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Text style={styles.statNumber}>R {averagePrice}</Text>
+                <Text style={styles.statLabel}>Average Price</Text>
+              </View>
+            </View>
+            <View style={styles.breakdownRow}>
+              <Text style={styles.breakdownText}>Starters: {starterCount}</Text>
+              <Text style={styles.breakdownText}>Mains: {mainCount}</Text>
+              <Text style={styles.breakdownText}>Desserts: {dessertCount}</Text>
+            </View>
           </View>
 
           {/* Menu Statistics Section */}
