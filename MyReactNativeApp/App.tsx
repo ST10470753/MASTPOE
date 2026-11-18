@@ -133,18 +133,29 @@ export default function App() {
             />
 
             <Text style={styles.label}>Course Category *</Text>
+            
+            {/* ========================================================
+              * PICKER COMPONENT IMPLEMENTATION & COMMENTS:
+              * The Picker component lets users select a course category
+              * (Starter, Main Course, or Dessert) from a dropdown list.
+              * ======================================================== */}
             <View style={styles.pickerWrapper}>
               <Picker
+                // Binds the selected value to our strCourse state variable
                 selectedValue={strCourse}
+                // Updates state whenever a new option is chosen from the dropdown
                 onValueChange={(itemValue) => setStrCourse(itemValue)}
                 style={styles.picker}
+                // Sets dropdown arrow color for cross-platform compatibility
                 dropdownIconColor="#ffffff"
               >
+                {/* Picker Items representing the selectable course options */}
                 <Picker.Item label="Starter" value="Starter" color={Platform.OS === 'ios' ? '#fff' : '#000'} />
                 <Picker.Item label="Main Course" value="Main" color={Platform.OS === 'ios' ? '#fff' : '#000'} />
                 <Picker.Item label="Dessert" value="Dessert" color={Platform.OS === 'ios' ? '#fff' : '#000'} />
               </Picker>
             </View>
+            {/* ======================================================== */}
 
             <Text style={styles.label}>Price (ZAR) *</Text>
             <TextInput
