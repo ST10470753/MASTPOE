@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -23,6 +23,32 @@ interface MenuItem {
   course: string;
   price: string;
 }
+//Menu Item card props
+interface MenuItemCardProps {
+  item: MenuItem;
+  onEdit: (item: MenuItem) => void;
+  onDelete: (id: string, name: string) => void;
+}
+
+const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onEdit, onDelete }) => (
+  <View style={styles.card}>
+    <View style={styles.cardHeader}>
+      <Text style={styles.cardTitle}>{item.dishName}</Text>
+      <Text style={styles.cardPrice}>R {item.price}</Text>
+    </View>
+    <Text style={styles.cardBadge}>{item.course}</Text>
+    <Text style={styles.cardDescription}>{item.description}</Text>
+
+    <View style={styles.cardActionRow}>
+      <TouchableOpacity style={styles.editButton} onPress={() => onEdit(item)}>
+        <Text style={styles.actionButtonText}>Edit</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(item.id, item.dishName)}>
+        <Text style={styles.actionButtonText}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+);
 
 export default function App() {
   // State for Form Inputs
@@ -38,9 +64,26 @@ export default function App() {
   const [strFeedbackMessage, setStrFeedbackMessage] = useState<string | null>(null);
   const [strFeedbackType, setStrFeedbackType] = useState<'error' | 'success'>('error');
   const [strEditingId, setStrEditingId] = useState<string | null>(null);
+
   // State for Search and Filter
   const [strSearchQuery, setStrSearchQuery] = useState<string>('');
   const [strSelectedFilter, setStrSelectedFilter] = useState<string>('All');
+
+  // Automatically hides feedback banners after 4 seconds for cleaner UX
+  useEffect(() => {
+    if (!strFeedbackMessage) return;
+    const timer = setTimeout(() => setStrFeedbackMessage(null), 4000);
+    return () => clearTimeout(timer);
+  }, [strFeedbackMessage]);
+
+  // Reusable helper function to reset form inputs and exit edit mode
+  const resetFormFields = () => {
+    setStrEditingId(null);
+    setStrDishName('');
+    setStrDescription('');
+    setStrCourse('Starter');
+    setStrPrice('');
+  };
 
  const handleSaveMenuItem = () => {
     if (!strDishName.trim() || !strDescription.trim() || !strPrice.trim()) {
@@ -55,6 +98,8 @@ export default function App() {
       setStrFeedbackType('error');
       return;
     }
+
+
 
     if (strEditingId) {
       // --- UPDATE EXISTING ITEM ---
@@ -73,6 +118,7 @@ export default function App() {
       );
       setStrFeedbackMessage(`Success: "${strDishName.trim()}" has been updated!`);
       setStrEditingId(null); // Clear editing mode
+
     } else {
       // --- ADD NEW ITEM ---
       const objNewDish: MenuItem = {
@@ -250,13 +296,28 @@ export default function App() {
               onChangeText={setStrPrice}
               keyboardType="decimal-pad"
             />
-
+            {/* Submit Button */}
             <TouchableOpacity style={styles.submitButton} onPress={handleSaveMenuItem} activeOpacity={0.8}>
           <Text style={styles.submitButtonText}>
            {strEditingId ? 'Update Menu Item' : 'Add Menu Item'}
           </Text>
           </TouchableOpacity>
+
+          {/* Cancel Button */}
+          {strEditingId && (
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => {
+                  resetFormFields();
+                  setStrFeedbackMessage('Edit cancelled.');
+                  setStrFeedbackType('error');
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancel Edit</Text>
+              </TouchableOpacity>
+            )}
           </View>
+          
 
           {/* Search and Filter Section */}
           <View style={styles.formCard}>
@@ -585,6 +646,66 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: '#ffffff',
     fontSize: 12,
+    fontWeight: 'bold',
+  },
+
+  statsCard: {
+    backgroundColor: '#16222b',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#203a43',
+    marginBottom: 20,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  statBox: {
+    flex: 1,
+    backgroundColor: '#1e2d38',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 4,
+    borderWidth: 1,
+    borderColor: '#2d4659',
+  },
+  statNumber: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#d4af37',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#aaa',
+    marginTop: 2,
+  },
+  breakdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderTopWidth: 1,
+    borderTopColor: '#203a43',
+    paddingTop: 10,
+  },
+  breakdownText: {
+    color: '#ddd',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  clearFilterButton: {
+    backgroundColor: '#3a2a2a',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: '#5a3a3a',
+  },
+  clearFilterText: {
+    color: '#ff9999',
+    fontSize: 13,
     fontWeight: 'bold',
   },
 });
