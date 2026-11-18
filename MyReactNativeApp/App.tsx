@@ -37,10 +37,11 @@ export default function App() {
   // State for Feedback Banner Message
   const [strFeedbackMessage, setStrFeedbackMessage] = useState<string | null>(null);
   const [strFeedbackType, setStrFeedbackType] = useState<'error' | 'success'>('error');
+  const [strEditingId, setStrEditingId] = useState<string | null>(null);
 
-  const handleAddMenuItem = () => {
+ const handleSaveMenuItem = () => {
     if (!strDishName.trim() || !strDescription.trim() || !strPrice.trim()) {
-      setStrFeedbackMessage('Missing Information: Please fill in all fields before adding a menu item.');
+      setStrFeedbackMessage('Missing Information: Please fill in all fields before saving.');
       setStrFeedbackType('error');
       return;
     }
@@ -52,26 +53,73 @@ export default function App() {
       return;
     }
 
-    const objNewDish: MenuItem = {
-      id: Date.now().toString(),
-      dishName: strDishName.trim(),
-      description: strDescription.trim(),
-      course: strCourse,
-      price: numParsedPrice.toFixed(2),
-    };
+    if (strEditingId) {
+      // --- UPDATE EXISTING ITEM ---
+      setArrMenuItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === strEditingId
+            ? {
+                ...item,
+                dishName: strDishName.trim(),
+                description: strDescription.trim(),
+                course: strCourse,
+                price: numParsedPrice.toFixed(2),
+              }
+            : item
+        )
+      );
+      setStrFeedbackMessage(`Success: "${strDishName.trim()}" has been updated!`);
+      setStrEditingId(null); // Clear editing mode
+    } else {
+      // --- ADD NEW ITEM ---
+      const objNewDish: MenuItem = {
+        id: Date.now().toString(),
+        dishName: strDishName.trim(),
+        description: strDescription.trim(),
+        course: strCourse,
+        price: numParsedPrice.toFixed(2),
+      };
+      setArrMenuItems((prevItems) => [objNewDish, ...prevItems]);
+      setStrFeedbackMessage(`Success: "${strDishName.trim()}" has been added to the menu!`);
+    }
 
-    setArrMenuItems((prevItems) => [objNewDish, ...prevItems]);
-
-    setStrFeedbackMessage(`Success: "${strDishName.trim()}" has been added to the menu!`);
     setStrFeedbackType('success');
     
+    // Reset Form Fields
     setStrDishName('');
     setStrDescription('');
     setStrCourse('Starter');
     setStrPrice('');
   };
 
-  // Component to Render Individual Item
+  // Handler to load an item into the form for editing
+  const handleEditItem = (item: MenuItem) => {
+    setStrEditingId(item.id);
+    setStrDishName(item.dishName);
+    setStrDescription(item.description);
+    setStrCourse(item.course);
+    setStrPrice(item.price);
+    setStrFeedbackMessage(`Editing "${item.dishName}"... Make your changes below.`);
+    setStrFeedbackType('error'); // using error/warning style banner for notice
+  };
+
+  // Handler to delete a menu item
+  const handleDeleteItem = (id: string, name: string) => {
+    setArrMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    setStrFeedbackMessage(`Deleted: "${name}" has been removed from the menu.`);
+    setStrFeedbackType('error');
+    
+    // If the user was currently editing this item, clear the form
+    if (strEditingId === id) {
+      setStrEditingId(null);
+      setStrDishName('');
+      setStrDescription('');
+      setStrCourse('Starter');
+      setStrPrice('');
+    }
+  };
+
+ // Component to Render Individual Item with Edit/Delete Actions
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -80,6 +128,23 @@ export default function App() {
       </View>
       <Text style={styles.cardBadge}>{item.course}</Text>
       <Text style={styles.cardDescription}>{item.description}</Text>
+
+      {/* Action Buttons Row */}
+      <View style={styles.cardActionRow}>
+        <TouchableOpacity 
+          style={styles.editButton} 
+          onPress={() => handleEditItem(item)}
+        >
+          <Text style={styles.actionButtonText}>Edit</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.deleteButton} 
+          onPress={() => handleDeleteItem(item.id, item.dishName)}
+        >
+          <Text style={styles.actionButtonText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -167,9 +232,11 @@ export default function App() {
               keyboardType="decimal-pad"
             />
 
-            <TouchableOpacity style={styles.submitButton} onPress={handleAddMenuItem} activeOpacity={0.8}>
-              <Text style={styles.submitButtonText}>Add Menu Item</Text>
-            </TouchableOpacity>
+            <TouchableOpacity style={styles.submitButton} onPress={handleSaveMenuItem} activeOpacity={0.8}>
+          <Text style={styles.submitButtonText}>
+           {strEditingId ? 'Update Menu Item' : 'Add Menu Item'}
+          </Text>
+          </TouchableOpacity>
           </View>
 
           {/* Current Menu List Section */}
@@ -393,5 +460,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  cardActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#2c2c2c',
+    paddingTop: 10,
+  },
+  editButton: {
+    backgroundColor: '#335577',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  deleteButton: {
+    backgroundColor: '#773333',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  actionButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
