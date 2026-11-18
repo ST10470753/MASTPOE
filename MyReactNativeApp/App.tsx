@@ -38,6 +38,9 @@ export default function App() {
   const [strFeedbackMessage, setStrFeedbackMessage] = useState<string | null>(null);
   const [strFeedbackType, setStrFeedbackType] = useState<'error' | 'success'>('error');
   const [strEditingId, setStrEditingId] = useState<string | null>(null);
+  // State for Search and Filter
+  const [strSearchQuery, setStrSearchQuery] = useState<string>('');
+  const [strSelectedFilter, setStrSelectedFilter] = useState<string>('All');
 
  const handleSaveMenuItem = () => {
     if (!strDishName.trim() || !strDescription.trim() || !strPrice.trim()) {
@@ -118,6 +121,22 @@ export default function App() {
       setStrPrice('');
     }
   };
+
+  // Filter and Search Logic
+  const filteredMenuItems = arrMenuItems.filter((item) => {
+    const matchesSearch = item.dishName.toLowerCase().includes(strSearchQuery.toLowerCase());
+    const matchesFilter = strSelectedFilter === 'All' || item.course === strSelectedFilter;
+    return matchesSearch && matchesFilter;
+  });
+
+  // Statistics Calculations
+  const totalItemsCount = arrMenuItems.length;
+  const averagePrice = totalItemsCount > 0
+    ? (arrMenuItems.reduce((sum, item) => sum + parseFloat(item.price), 0) / totalItemsCount).toFixed(2)
+    : '0.00';
+  const starterCount = arrMenuItems.filter((i) => i.course === 'Starter').length;
+  const mainCount = arrMenuItems.filter((i) => i.course === 'Main').length;
+  const dessertCount = arrMenuItems.filter((i) => i.course === 'Dessert').length;
 
  // Component to Render Individual Item with Edit/Delete Actions
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
@@ -238,6 +257,67 @@ export default function App() {
           </Text>
           </TouchableOpacity>
           </View>
+          
+          {/* Search and Filter Section */}
+          <View style={styles.formCard}>
+            <Text style={styles.sectionHeader}>Search & Filter Menu</Text>
+
+            <Text style={styles.label}>Search by Dish Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Type to search..."
+              placeholderTextColor="#888"
+              value={strSearchQuery}
+              onChangeText={setStrSearchQuery}
+            />
+
+            <Text style={styles.label}>Filter by Course</Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={strSelectedFilter}
+                onValueChange={(itemValue) => setStrSelectedFilter(itemValue)}
+                style={styles.picker}
+                dropdownIconColor="#ffffff"
+              >
+                <Picker.Item label="All Courses" value="All" color={Platform.OS === 'ios' ? '#fff' : '#000'} />
+                <Picker.Item label="Starter" value="Starter" color={Platform.OS === 'ios' ? '#fff' : '#000'} />
+                <Picker.Item label="Main Course" value="Main" color={Platform.OS === 'ios' ? '#fff' : '#000'} />
+                <Picker.Item label="Dessert" value="Dessert" color={Platform.OS === 'ios' ? '#fff' : '#000'} />
+              </Picker>
+            </View>
+
+            {(strSearchQuery !== '' || strSelectedFilter !== 'All') && (
+              <TouchableOpacity
+                style={styles.clearFilterButton}
+                onPress={() => {
+                  setStrSearchQuery('');
+                  setStrSelectedFilter('All');
+                }}
+              >
+                <Text style={styles.clearFilterText}>Clear Search & Filters</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Menu Statistics Section */}
+          <View style={styles.statsCard}>
+            <Text style={styles.sectionHeader}>Menu Statistics Overview</Text>
+            <View style={styles.statsRow}>
+              <View style={styles.statBox}>
+                <Text style={styles.statNumber}>{totalItemsCount}</Text>
+                <Text style={styles.statLabel}>Total Items</Text>
+              </View>
+              <View style={styles.statBox}>
+                <Text style={styles.statNumber}>R {averagePrice}</Text>
+                <Text style={styles.statLabel}>Average Price</Text>
+              </View>
+            </View>
+            <View style={styles.breakdownRow}>
+              <Text style={styles.breakdownText}>Starters: {starterCount}</Text>
+              <Text style={styles.breakdownText}>Mains: {mainCount}</Text>
+              <Text style={styles.breakdownText}>Desserts: {dessertCount}</Text>
+            </View>
+          </View>
 
           {/* Current Menu List Section */}
           <View style={styles.listSection}>
@@ -255,7 +335,7 @@ export default function App() {
               </View>
             ) : (
               <FlatList
-                data={arrMenuItems}
+                data={filteredMenuItems}
                 keyExtractor={(item) => item.id}
                 renderItem={renderMenuItem}
                 scrollEnabled={false}
